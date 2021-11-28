@@ -4,17 +4,18 @@ spring:
 
   security:
     oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8888/auth/realms/IHTAR
       client:
         registration:
           keycloak:
             client-id: schedule-app-be
-            client-secret: 1030df94-abc4-462c-9e9b-71f9b8b1bb23
+            client-secret: 7a280692-2c98-40a0-8046-66e6d5d54bcb
             scope: openid
-            authorization-grant-type: bearer_only
-
         provider:
           keycloak:
-            issuer-uri: ${KEYCLOAK_URL:http://localhost:8888}/auth/realms/IHTAR
+            issuer-uri: http://localhost:8888/auth/realms/IHTAR
 
   session:
     store-type: redis
@@ -26,13 +27,14 @@ spring:
       globalcors:
         cors-configurations:
           '[/**]':
-            allowedOrigins: "http://localhost:9095"
+            allowedOrigins: "*"
             allowedHeaders: "*"
             allowedMethods:
               - GET
               - POST
               - DELETE
               - PUT
+              - OPTIONS
       default-filters:
         - TokenRelay
         - name: RequestRateLimiter
@@ -44,7 +46,7 @@ spring:
         - id: meeting-route
           uri: lb://meeting-manager-service
           predicates:
-            - Path=/recipients/**
+            - Path=/meetings/**
             - Path=/meeting-provider/**
           filters:
 #            - name: CircuitBreaker
