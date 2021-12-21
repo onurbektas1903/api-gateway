@@ -13,22 +13,13 @@ public class SecurityConfig {
     SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
         http
                 .authorizeExchange()
+                 .pathMatchers("/websocket/**")
+                .permitAll()
                 .anyExchange().authenticated()
-                .and()
-                .oauth2Login()
                 .and()
                 .oauth2ResourceServer()
                 .jwt();
         return http.build();
-
     }
-//    @Bean
-//    ReactiveJwtDecoder jwtDecoderByIssuerUri() {
-//        NimbusReactiveJwtDecoder jwtDecoder = (NimbusJwtDecoder) JwtDecoders.fromIssuerLocation("http://localhost:8888/auth" +
-//                "/realms/IHTAR");
-//        // Use preferred_username from claims as authentication name, instead of UUID subject
-//        return jwtDecoder;
-//    }
-
 }
 

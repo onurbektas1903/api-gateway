@@ -1,0 +1,111 @@
+version: 1
+
+dn: olcOverlay=memberof,olcDatabase={0}config,cn=config
+objectClass: olcMemberOf
+objectClass: olcOverlayConfig
+objectClass: olcConfig
+objectClass: top
+olcOverlay: memberof
+olcMemberOfDangling: ignore
+olcMemberOfRefInt: TRUE
+olcMemberOfGroupOC: groupOfNames
+olcMemberOfMemberAD: member
+olcMemberOfMemberOfAD: memberOf
+
+
+# gruplar
+dn: ou=groups,dc=obss,dc=com
+objectClass: organizationalUnit
+objectClass: top
+ou: groups
+
+# admin grubu
+dn: cn=admin,ou=groups,dc=obss,dc=com
+objectClass: top
+objectClass: groupOfNames
+cn: admin
+member: uid=admin,ou=users,dc=obss,dc=com
+member: uid=bektaso,ou=users,dc=obss,dc=com
+
+# hr grubu
+dn: cn=hr,ou=groups,dc=obss,dc=com
+objectClass: top
+objectClass: groupOfNames
+cn: hr
+member: uid=canan,ou=users,dc=obss,dc=com
+
+# users grubu
+dn: cn=users,ou=groups,dc=obss,dc=com
+objectClass: top
+objectClass: groupOfNames
+cn: users
+member: uid=baris,ou=users,dc=obss,dc=com
+
+
+# kullanicilar
+dn: ou=users,dc=obss,dc=com
+objectClass: organizationalUnit
+objectClass: top
+ou: users
+
+dn: uid=admin,ou=users,dc=obss,dc=com
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+uid: admin
+sn: Lastname
+givenName: Firstname
+cn: admin
+displayName: admin
+mail: admin@obss.com
+userPassword: {MD5}ICy5YqxZB1uWSwcVLSNLcA==
+memberOf: cn=admin,ou=groups,dc=obss,dc=com
+
+dn: uid=bektaso,ou=users,dc=obss,dc=com
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+uid: bektaso
+sn: Lastname
+givenName: Firstname
+cn: bektaso
+displayName: bektaso
+mail: bektaso@redonce.com
+userPassword: {MD5}ICy5YqxZB1uWSwcVLSNLcA==
+memberOf: cn=admin,ou=groups,dc=obss,dc=com
+
+dn: uid=canan,ou=users,dc=obss,dc=com
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+uid: canan
+sn: Lastname
+givenName: Firstname
+cn: canan
+displayName: canan
+mail: canan@redonce.com
+userPassword: {MD5}ICy5YqxZB1uWSwcVLSNLcA==
+memberOf: cn=hr,ou=groups,dc=obss,dc=com
+
+dn: uid=baris,ou=users,dc=obss,dc=com
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+uid: baris
+sn: Lastname
+givenName: Firstname
+cn: baris
+displayName: baris
+mail: baris@redonce.com
+userPassword: {MD5}ICy5YqxZB1uWSwcVLSNLcA==
+memberOf: cn=users,ou=groups,dc=obss,dc=com
+
+
+
+
+
+

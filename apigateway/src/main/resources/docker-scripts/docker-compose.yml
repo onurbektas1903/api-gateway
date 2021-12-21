@@ -1,0 +1,35 @@
+version: '3.7'
+
+services:
+  schedule-with-me-fe:
+    image: schedule-with-me-fe-6:latest
+    hostname: schedule-with-me-fe
+    ports:
+      - 9095:9095
+    volumes:
+      - ./nginx/nginx-web.conf:/etc/nginx/nginx.conf
+    environment:
+      KEYCLOAK_AUTH_URL: http://192.168.1.32:8888/auth/
+
+volumes:
+  zookeeper-data:
+    driver: local
+  zookeeper-log:
+    driver: local
+  mongo-db-data:
+    driver: local
+  mongo-config-data:
+    driver: local
+  kafka-data:
+    driver: local
+  kafka-secrets:
+    driver: local
+  postgres-data:
+    driver: local
+  redis-data:
+    driver: local
+  jaeger-data:
+    driver: local
+networks:
+  ihtar-net:
+    external: true

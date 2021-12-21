@@ -8,6 +8,9 @@ import org.springframework.web.cors.reactive.CorsConfigurationSource;
 import org.springframework.web.cors.reactive.CorsWebFilter;
 import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 
+import java.util.Arrays;
+import java.util.Collections;
+
 
 @Configuration
 public class PreFlightCorsConfiguration {
@@ -26,6 +29,8 @@ public class PreFlightCorsConfiguration {
         config.addAllowedMethod( HttpMethod.POST);
         config.addAllowedMethod( HttpMethod.OPTIONS);
         config.addAllowedMethod(HttpMethod.DELETE);
+        config.setAllowedOrigins(Arrays.asList("http://localhost:9095"));
+        config.setAllowedHeaders(Collections.singletonList("*"));
         source.registerCorsConfiguration("/**", config);
         return source;
     }

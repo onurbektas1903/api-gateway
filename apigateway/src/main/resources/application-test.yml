@@ -1,31 +1,22 @@
-management:
-  endpoints:
-    web:
-      exposure:
-        include: "*"
 spring:
-  application:
-    name: api-gateway
-
   security:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:8888/auth/realms/obss-scheduler
+          issuer-uri: http://keycloak:8888/auth/realms/obss-scheduler
       client:
         registration:
           keycloak:
             client-id: schedule-app-be
-            client-secret: 2e0eb796-92ed-4a7c-88a5-58e2d42f1ba2
+            client-secret: d2cff314-7bbd-42f8-8c29-743cfef3827c
             scope: openid
         provider:
           keycloak:
-            issuer-uri: http://localhost:8888/auth/realms/obss-scheduler
-
+            issuer-uri: http://keycloak:8888/auth/realms/obss-scheduler
   session:
     store-type: redis
   redis:
-    host: localhost
+    host: redis
     port: 6379
   cloud:
     gateway:
@@ -80,7 +71,7 @@ resilience4j:
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://localhost:8761/eureka
+      defaultZone: http://eureka:8761/eureka
     register-with-eureka: false
     fetchRegistry: true
   instance:

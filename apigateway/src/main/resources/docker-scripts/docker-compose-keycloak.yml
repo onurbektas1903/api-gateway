@@ -1,0 +1,82 @@
+version: '3.0'
+services:
+
+
+  keycloak:
+    image: jboss/keycloak:12.0.4
+    container_name: keycloak
+    environment:
+      - KEYCLOAK_USER=admin
+      - KEYCLOAK_PASSWORD=admin
+      - KEYCLOAK_IMPORT=/opt/jboss/keycloak/data/realm-export.json
+      - DB_VENDOR=postgres
+      - DB_ADDR=postgres
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - JDBC_PARAMS=useSSL=false
+    ports:
+      - "8888:8080"
+      - "9990:9990"
+    depends_on:
+      - postgres
+      - ldap-host
+    healthcheck:
+      test: "curl -f http://keycloak:8888/auth || exit 1"
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    volumes:
+      - ./keycloak/:/opt/jboss/keycloak/data
+
+  postgres:
+    image: postgres
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - 5432:5432
+    volumes:
+      - ./db:/docker-entrypoint-initdb.d
+      - postgres-data:/var/lib/postgresql/data
+    command:
+      - "postgres"
+      - "-c"
+      - "max_connections=250"
+
+  ldap-host:
+    image: osixia/openldap:1.4.0
+    container_name: ldap-host
+    environment:
+      - LDAP_ORGANISATION="OBSS Scheduler"
+      - LDAP_DOMAIN=obss.com
+      - LDAP_ADMIN_PASSWORD=admin
+      - LDAP_REMOVE_CONFIG_AFTER_SETUP=false
+    ports:
+      - "389:389"
+    volumes:
+      - ./ldap/:/container/service/slapd/assets/config/bootstrap/ldif/custom/
+
+
+volumes:
+  zookeeper-data:
+    driver: local
+  zookeeper-log:
+    driver: local
+  mongo-db-data:
+    driver: local
+  mongo-config-data:
+    driver: local
+  kafka-data:
+    driver: local
+  kafka-secrets:
+    driver: local
+  postgres-data:
+    driver: local
+  redis-data:
+    driver: local
+  jaeger-data:
+    driver: local
+-- networks:
+
+   fail

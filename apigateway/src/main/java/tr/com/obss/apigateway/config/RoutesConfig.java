@@ -12,10 +12,24 @@ public class RoutesConfig {
   public RouteLocator gatewayRoutes(RouteLocatorBuilder builder) {
     return builder
         .routes()
-        .route(p -> p.path("/recipients").uri("lb://google-calendar-service"))
-        .route(p -> p.path("/meetings/*").uri("lb://meeting-manager-service"))
-        .route(p -> p.path("/meeting-provider/*").uri("lb://meeting-manager-service"))
-        .route(p -> p.path("/websocket/**").uri("lb://notification-service/"))
+        .route(p -> p.path("/google-account-manager/**").uri("lb://google-calendar-service"))
+        .route(p -> p.path("/meeting-manager/**").uri("lb://meeting-manager-service"))
+        .route(p -> p.path("/zoom-account-manager/**").uri("lb://zoom-service"))
+        .route(p -> p.path("/provider-manager/**").uri("lb://meeting-manager-service"))
+        .route(p -> p.path("/meeting-provider/**").uri("lb://meeting-manager-service"))
+        .route(
+            p ->
+                p.path("/websocket/**")
+                    .filters(
+                        f -> f.dedupeResponseHeader("Access-Control-Allow-Origin", "RETAIN_UNIQUE"))
+                    .uri("lb://notification-service"))
+        //        .route(
+        //            p ->
+        //                p.path("/websocket/info/**")
+        //                    .filters(
+        //                        f -> f.dedupeResponseHeader("Access-Control-Allow-Origin",
+        // "RETAIN_UNIQUE"))
+        //                    .uri("lb://notification-service"))
         .build();
   }
 }
