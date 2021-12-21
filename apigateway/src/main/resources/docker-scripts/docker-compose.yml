@@ -2,14 +2,150 @@ version: '3.7'
 
 services:
   schedule-with-me-fe:
-    image: schedule-with-me-fe-6:latest
+    image: schedule-with-me-fe-8:latest
     hostname: schedule-with-me-fe
     ports:
       - 9095:9095
     volumes:
       - ./nginx/nginx-web.conf:/etc/nginx/nginx.conf
     environment:
-      KEYCLOAK_AUTH_URL: http://192.168.1.32:8888/auth/
+      KEYCLOAK_AUTH_URL: http://localhost:8888/auth/
+    depends_on:
+      - keycloak
+  smtp:
+    restart: always
+    image: mailhog/mailhog:latest
+    ports: [ "8025:8025","1025:1025" ]
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.0.1
+    hostname: zookeeper
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  broker:
+    image: confluentinc/cp-server:7.0.1
+    hostname: broker
+    container_name: broker
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+      - "9101:9101"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_CONFLUENT_LICENSE_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_CONFLUENT_BALANCER_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_JMX_PORT: 9101
+      KAFKA_JMX_HOSTNAME: localhost
+      CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1
+      CONFLUENT_METRICS_ENABLE: 'true'
+      CONFLUENT_SUPPORT_CUSTOMER_ID: 'anonymous'
+
+  postgres:
+    image: postgres
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - 5432:5432
+    volumes:
+      - ./db:/docker-entrypoint-initdb.d
+      - postgres-data:/var/lib/postgresql/data
+    command:
+      - "postgres"
+      - "-c"
+      - "max_connections=250"
+  redis:
+    image: 192.168.2.236:8085/redis:5.0.7-alpine
+    ports:
+      - 6379:6379
+    volumes:
+      - redis-data:/data
+
+  keycloak:
+    image: jboss/keycloak:12.0.4
+    container_name: keycloak
+    environment:
+      - KEYCLOAK_USER=admin
+      - KEYCLOAK_PASSWORD=admin
+      - KEYCLOAK_IMPORT=/opt/jboss/keycloak/data/realm-export.json
+      - DB_VENDOR=postgres
+      - DB_ADDR=postgres
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - JDBC_PARAMS=useSSL=false
+    ports:
+      - "8888:8080"
+      - "9990:9990"
+    depends_on:
+      - postgres
+      - ldap-host
+    healthcheck:
+      test: "curl -f http://keycloak:8888/auth || exit 1"
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    volumes:
+      - ./keycloak/:/opt/jboss/keycloak/data
+
+  ldap-host:
+    image: osixia/openldap:1.4.0
+    container_name: ldap-host
+    environment:
+      - LDAP_ORGANISATION="OBSS Scheduler"
+      - LDAP_DOMAIN=obss.com
+      - LDAP_ADMIN_PASSWORD=admin
+      - LDAP_REMOVE_CONFIG_AFTER_SETUP=false
+    ports:
+      - "389:389"
+    volumes:
+      - ./ldap/:/container/service/slapd/assets/config/bootstrap/ldif/custom/
+
+  phpldapadmin-service:
+    image: osixia/phpldapadmin:0.9.0
+    container_name: phpldapadmin-service
+    environment:
+      - PHPLDAPADMIN_LDAP_HOSTS=ldap-host
+    ports:
+      - "6443:443"
+    depends_on:
+      - ldap-host
+
+  kafka-ui-kafdrop:
+    image: 192.168.2.236:8085/obsidiandynamics/kafdrop:3.26.0
+    ports:
+      - 9001:9000
+    environment:
+      KAFKA_BROKERCONNECT: "broker:29092"
+      JVM_OPTS: "-Xms32M -Xmx100M"
+      SERVER_SERVLET_CONTEXTPATH: "/"
+    depends_on:
+      - zookeeper
+      - broker
+
+  jaeger:
+    image: 192.168.2.236:8085/jaegertracing/all-in-one:1.22.0
+    ports:
+      - 6831:6831/udp # UDP Collector (default, jaeger.thrift over compact thrift)
+      - 16686:16686   # Web UI
+      # - 14268:14268   # HTTP Collector (jaeger.thrift)
+    volumes:
+      - jaeger-data:/tmp
+    environment:
+      LOG_LEVEL: error
 
 volumes:
   zookeeper-data:
@@ -30,6 +166,3 @@ volumes:
     driver: local
   jaeger-data:
     driver: local
-networks:
-  ihtar-net:
-    external: true

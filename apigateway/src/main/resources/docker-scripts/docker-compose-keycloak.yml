@@ -2,31 +2,31 @@ version: '3.0'
 services:
 
 
-  keycloak:
-    image: jboss/keycloak:12.0.4
-    container_name: keycloak
-    environment:
-      - KEYCLOAK_USER=admin
-      - KEYCLOAK_PASSWORD=admin
-      - KEYCLOAK_IMPORT=/opt/jboss/keycloak/data/realm-export.json
-      - DB_VENDOR=postgres
-      - DB_ADDR=postgres
-      - DB_USER=postgres
-      - DB_PASSWORD=postgres
-      - JDBC_PARAMS=useSSL=false
-    ports:
-      - "8888:8080"
-      - "9990:9990"
-    depends_on:
-      - postgres
-      - ldap-host
-    healthcheck:
-      test: "curl -f http://keycloak:8888/auth || exit 1"
-      interval: 30s
-      timeout: 3s
-      retries: 3
-    volumes:
-      - ./keycloak/:/opt/jboss/keycloak/data
+ keycloak:
+  image: jboss/keycloak:12.0.4
+  container_name: keycloak
+  environment:
+    - KEYCLOAK_USER=admin
+    - KEYCLOAK_PASSWORD=admin
+    - KEYCLOAK_IMPORT=/opt/jboss/keycloak/data/realm-export.json
+    - DB_VENDOR=postgres
+    - DB_ADDR=postgres
+    - DB_USER=postgres
+    - DB_PASSWORD=postgres
+    - JDBC_PARAMS=useSSL=false
+  ports:
+    - "8888:8080"
+    - "9990:9990"
+  depends_on:
+    - postgres
+    - ldap-host
+  healthcheck:
+    test: "curl -f http://keycloak:8888/auth || exit 1"
+    interval: 30s
+    timeout: 3s
+    retries: 3
+  volumes:
+    - ./keycloak/:/opt/jboss/keycloak/data
 
   postgres:
     image: postgres

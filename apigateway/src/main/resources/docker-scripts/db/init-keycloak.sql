@@ -18,3 +18,29 @@ SET default_table_access_method = heap;
 --
 -- Name: admin_event_entity; Type: TABLE; Schema: public; Owner: postgres
 --
+create table meeting
+(
+    id                  varchar(255) not null
+        constraint meeting_pkey
+            primary key,
+    deleted             boolean      not null,
+    created_by          varchar(255),
+    created_date        bigint       not null,
+    last_modified_date  bigint       not null,
+    updated_by          varchar(255),
+    calendar_event_id   varchar(255),
+    description         varchar(255),
+    end_date            bigint       not null,
+    event_id            varchar(255),
+    meetingurl          varchar(255),
+    organizer           varchar(255),
+    provider_account    varchar(255),
+    start_date          bigint       not null,
+    title               varchar(255),
+    meeting_provider_id varchar(255) not null
+        constraint fkjkgxrtrc8rptecmwe6u8fb52x
+            references meeting_provider
+);
+
+alter table meeting
+    owner to postgres;
